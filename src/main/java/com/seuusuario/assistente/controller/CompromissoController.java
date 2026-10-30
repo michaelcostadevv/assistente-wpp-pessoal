@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.security.Principal;
 import java.util.List;
 
 @RestController
@@ -22,20 +23,21 @@ public class CompromissoController {
     private CompromissoMapper compromissoMapper;
 
     @PostMapping
-    public ResponseEntity<Compromisso> criar(@RequestBody @Valid CompromissoRequestDTO requestDTO) {
-        // 1. Converte o DTO para Entidade usando o Mapper
+    public ResponseEntity<Compromisso> criar(@RequestBody @Valid CompromissoRequestDTO requestDTO,
+                                             Principal principal) {
+        // principal.getName() captura automaticamente o e-mail que está dentro do Token JWT
+        String emailUsuario = principal.getName();
+
         Compromisso compromisso = compromissoMapper.toEntity(requestDTO);
+        Compromisso novoCompromisso = compromissoService.salvar(compromisso, emailUsuario);
 
-        // 2. Salva usando o Service (que já tem a regra de duplicidade)
-        Compromisso novoCompromisso = compromissoService.salvar(compromisso);
-
-        // 3. Retorna a resposta HTTP 200 OK com o objeto criado
         return ResponseEntity.ok(novoCompromisso);
     }
 
     @GetMapping
-    public ResponseEntity<List<Compromisso>> listar() {
-        List<Compromisso> lista = compromissoService.listarTodos();
+    public ResponseEntity<List<Compromisso>> listar(Principal principal) {
+        String emailUsuario = principal.getName();
+        List<Compromisso> lista = compromissoService.listarPorUsuario(emailUsuario);
         return ResponseEntity.ok(lista);
     }
 }

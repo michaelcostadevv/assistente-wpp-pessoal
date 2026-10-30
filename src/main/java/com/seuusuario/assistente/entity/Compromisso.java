@@ -1,17 +1,12 @@
 package com.seuusuario.assistente.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.NoArgsConstructor;
-
 import java.time.LocalDateTime;
 
-@Entity
-@Table(name = "compromissos")
 @Data
-@NoArgsConstructor
-@AllArgsConstructor
+@Entity
+@Table(name = "tb_compromissos")
 public class Compromisso {
 
     @Id
@@ -23,9 +18,14 @@ public class Compromisso {
 
     private String descricao;
 
-    @Column(nullable = false)
+    @Column(name = "data_hora", nullable = false)
     private LocalDateTime dataHora;
 
     @Column(nullable = false)
-    private boolean notificado = false;
+    private Boolean notificado = false;
+
+    // Relaciona o compromisso ao usuário logado
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "usuario_id", nullable = false)
+    private Usuario usuario;
 }
